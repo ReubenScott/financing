@@ -164,27 +164,3 @@ function investment_preprocess_investment_form(&$vars) {
 
   $vars['investment_form']=  $investment_form ;
 }
-
-function investment_save() {
-  global $drupal_abs_path, $user;
-  $id = $_POST['investment_id'];
-  $item_name = $_POST['item_name'];
-  $principal = $_POST['principal'];
-  $guarantee_institution = $_POST['guarantee_institution'];
-  $investment_time = $_POST['investment_time'];
-  $annualized_return = $_POST['annualized_return'];
-  $expiration_time = $_POST['expiration_time'];
-  $payment_mode = $_POST['payment_mode'];
-
-  $investment_time = time();
-  $expiration_time = time();
-
-  $insert_investment_sql = "INSERT INTO {investment} (item_name, principal, guarantee_institution, investment_time, annualized_return, expiration_time, payment_mode)
-		VALUES ('%s', %f, '%s', %d, %f, %d, '%s')";
-  db_query($insert_investment_sql, $item_name, $principal, $guarantee_institution, $investment_time, $annualized_return, $expiration_time, $payment_mode);
-
-  $message = t('investment @name has been created. ', array('@name' => $item_name));
-
-  drupal_set_message($message);
-  drupal_goto('investment');
-}

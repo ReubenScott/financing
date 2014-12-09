@@ -1,0 +1,238 @@
+<?php
+
+function loan_menu() {
+
+  $items = array();
+
+  $items['loan'] = array(
+    'title' => 'loan',
+    'page callback' => 'loan_list',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items ['loan/add'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('loan_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items ['loan/save'] = array(
+    'page callback' => 'loan_save',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items ['loan/edit'] = array(
+    'page callback' => 'loan_edit',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_theme()
+ */
+function loan_theme() {
+  return array(
+    'loan_list' => array(
+      'template' => 'template/loan_list',
+      'arguments' => array('form' => NULL),
+    ),
+    'loan_form' => array(
+      'template' => 'template/loan_form',
+      'arguments' => array('form' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ * 
+ */
+function loan_init() {
+//  module_load_include('inc', 'loan', 'includes/loan');
+
+
+}
+
+
+function loan_form() {
+  $form['loan_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $id,
+  );
+  $form['contract_number'] = array(
+    '#title' => t('合同编号'),
+    '#type' => 'textfield',
+    '#id' => 'contract_number',
+    '#required' => TRUE,
+    '#name' => 'contract_number',
+    '#attributes' => array('placeholder' => 'Enter contract_number'),
+  );
+  $form['item_name'] = array(
+    '#title' => t('项目名称'),
+    '#type' => 'textfield',
+    '#id' => 'item_name',
+    '#required' => TRUE,
+    '#name' => 'item_name',
+    '#attributes' => array('placeholder' => 'Enter loan Name'),
+  );
+  $form['principal'] = array(
+    '#title' => t('借款金额'),
+    '#type' => 'textfield',
+    '#id' => 'principal',
+    '#required' => TRUE,
+    '#name' => 'principal',
+    '#attributes' => array('placeholder' => 'Enter loan Part #'),
+  );
+  $form['loan_time'] = array(
+    '#title' => t('借款时间'),
+    '#type' => 'textfield',
+    '#id' => 'loan_time',
+    '#required' => TRUE,
+    '#name' => 'loan_time',
+    '#attributes' => array('placeholder' => 'Enter loan Description'),
+  );
+  $form['annualized_return'] = array(
+    '#title' => t('年化收益'),
+    '#type' => 'textfield',
+    '#id' => 'annualized_return',
+    '#name' => 'annualized_return',
+  );
+  $form['expiration_time'] = array(
+    '#title' => t('到期时间'),
+    '#name' => 'expiration_time',
+    '#id' => 'expiration_time',    
+    '#type' => 'date_popup',
+    '#date_format' => 'm/d/Y',
+    '#maxlength' => 10,
+    '#date_year_range' => '-5:+6',
+    '#attributes' => array('title' => t("Click the calendar to select the date."),'readonly' => true),
+    '#date_label_position' => 'within',  
+  );
+  $form['payment_mode'] = array(
+    '#title' => t('回款方式'),
+    '#type' => 'textfield',
+    '#id' => 'payment_mode',
+    '#name' => 'payment_mode',
+  );
+
+  $form['reset'] = array ('#value' => '<input type="reset" value="Reset">');
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#action'] = $id ? url('loan/update') : url('loan/save');
+//  $form['#theme'] = array('covidien_loan_form');
+//  $form['#validate'] = array('covidien_loan_form_validate');
+//  $form['#submit'] = array('covidien_loan_form_submit');
+
+  return $form;
+}
+
+
+function loan_list() {
+  drupal_set_title(t('借款'));
+  $output = theme('loan_list');
+  return $output;
+}
+
+
+/**
+ * Enter description here...
+ *
+ * @param unknown_type $vars
+ */
+function template_preprocess_loan_list(&$vars) {
+  $html = '';
+  //header
+  $header = array(
+    array('data' => t('合同编号'), 'field' => 'contract_number'),
+    array('data' => t('项目名称'), 'field' => 'item_name'),
+    array('data' => t('借款金额'), 'field' => 'principal'),
+    array('data' => t('借款时间'), 'field' => 'loan_time', 'sort' => 'desc'),
+    array('data' => t('年化收益'), 'field' => 'annualized_return'),
+    array('data' => t('到期时间'), 'field' => 'expiration_time'),
+    array('data' => t('回款方式'), 'field' => 'payment_mode'),
+  );
+
+  $query = pager_query("SELECT * FROM loan" . tablesort_sql($header), $limit = 30);
+
+  $rows= array();
+
+  while ($row = db_fetch_array($query)) {
+    $rows[] = array(
+      $row['contract_number'],
+      $row['item_name'],
+      $row['principal'],
+      $row['loan_time'] ? date('Y-m-d', $row['loan_time']): '',
+      $row['annualized_return'], 
+      $row['expiration_time'] ? date('Y-m-d', $row['expiration_time']): '',
+      $row['payment_mode']
+    );
+  }
+
+  $html .= theme('table', $header, $rows);
+  $html .= theme('pager');
+  
+  $vars['html'] = $html;
+
+}
+
+
+
+function loan_save() {
+  global $drupal_abs_path, $user;
+  $id = $_POST['loan_id'];
+  $item_name = $_POST['item_name'];
+  $principal = $_POST['principal'];
+  $guarantee_institution = $_POST['guarantee_institution'];
+  $loan_time = $_POST['loan_time'];
+  $annualized_return = $_POST['annualized_return'];
+  $expiration_time = $_POST['expiration_time'];
+  $payment_mode = $_POST['payment_mode'];
+
+  $loan_time = time();
+  $expiration_time = time();
+
+  $insert_loan_sql = "INSERT INTO {loan} (item_name, principal, guarantee_institution, loan_time, annualized_return, expiration_time, payment_mode)
+		VALUES ('%s', %f, '%s', %d, %f, %d, '%s')";
+  db_query($insert_loan_sql, $item_name, $principal, $guarantee_institution, $loan_time, $annualized_return, $expiration_time, $payment_mode);
+
+  $message = t('loan @name has been created. ', array('@name' => $item_name));
+
+  drupal_set_message($message);
+  drupal_goto('loan');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

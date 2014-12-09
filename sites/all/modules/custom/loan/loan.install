@@ -1,0 +1,81 @@
+<?php
+
+// $Id$
+
+
+/**
+ * Implementation of hook_install().
+ */
+function loan_install() {
+  drupal_install_schema('loan');
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function loan_uninstall() {
+  drupal_uninstall_schema('loan');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function loan_schema() {
+  $schema['loan'] = array(
+    'description' => t("loan"),
+    'fields' => array(
+      'id' => array(
+       'type' => 'serial',
+       'unsigned' => TRUE,
+       'not null' => TRUE,
+      ),
+      'loan_platform' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('借款平台'),
+      ),
+      'contract_number' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('合同编号'),
+      ),
+      'item_name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('项目名称'),
+      ),
+      'principal' => array(
+        'type' => 'float',
+        'size' => 'normal',
+        'description' => t('借款金额'),
+      ),
+      'loan_time' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => FALSE,
+        'description' => t('借款日期'),
+      ),
+      'annualized_return' => array(
+        'type' => 'float',
+        'size' => 'normal',
+        'description' => t('年化收益率'),
+      ),
+      'expiration_time' => array(
+       'type' => 'int',
+       'size' => 'normal',
+       'not null' => FALSE,
+       'description' => t('到期日期'),
+      ),
+      'payment_mode' => array(
+        'type' => 'varchar',
+        'length' => 128,
+       'description' => t('回款方式'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+

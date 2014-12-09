@@ -1,0 +1,6 @@
+; $Id$
+name = loan
+description = loan
+core = 6.x
+dependencies[] = investment
+package = Investment

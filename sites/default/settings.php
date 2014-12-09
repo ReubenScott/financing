@@ -89,8 +89,7 @@
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
 
-$db_url = 'mysqli://covidiendbuser:C0vidi3nDrp@localhost/investment';
-// $db_url = 'mysql://covidiendbuser:C0vidi3nDrp@10.243.119.199/covidiendb';
+$db_url = 'mysqli://covidiendbuser:C0vidi3nDrp@localhost/financing';
 
 $db_prefix = '';
 
