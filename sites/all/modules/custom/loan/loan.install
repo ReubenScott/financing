@@ -26,15 +26,15 @@ function loan_schema() {
   $schema['loan'] = array(
     'description' => t("loan"),
     'fields' => array(
-      'id' => array(
-       'type' => 'serial',
-       'unsigned' => TRUE,
-       'not null' => TRUE,
+        'loan_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
       ),
       'loan_platform' => array(
         'type' => 'varchar',
         'length' => 128,
-        'description' => t('借款平台'),
+        'description' => t('借贷平台'),
       ),
       'contract_number' => array(
         'type' => 'varchar',
@@ -51,16 +51,21 @@ function loan_schema() {
         'size' => 'normal',
         'description' => t('借款金额'),
       ),
-      'loan_time' => array(
-        'type' => 'int',
+      'period' => array(
+        'type' => 'float',
         'size' => 'normal',
-        'not null' => FALSE,
-        'description' => t('借款日期'),
+        'description' => t('期限'),
       ),
       'annualized_return' => array(
         'type' => 'float',
         'size' => 'normal',
         'description' => t('年化收益率'),
+      ),
+      'loan_time' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => FALSE,
+        'description' => t('借款日期'),
       ),
       'expiration_time' => array(
        'type' => 'int',
@@ -74,7 +79,7 @@ function loan_schema() {
        'description' => t('回款方式'),
       ),
     ),
-    'primary key' => array('id'),
+    'primary key' => array('loan_id'),
   );
   return $schema;
 }

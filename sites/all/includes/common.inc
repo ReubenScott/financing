@@ -143,6 +143,55 @@ function view_file($target_file) {
 }
 
 
+/**
+ * Get file mime type.
+ * 
+ * @param $file the file full path.
+ */
+function get_mime($file) {
+  if (function_exists("finfo_file")) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+    $mime = finfo_file($finfo, $file);
+    finfo_close($finfo);
+    return $mime;
+  } else if (function_exists("mime_content_type")) {
+    return mime_content_type($file);
+  } else if (!stristr(ini_get("disable_functions"), "shell_exec")) {
+    // http://stackoverflow.com/a/134930/1593459
+    $file = escapeshellarg($file);
+    $mime = shell_exec("file -bi " . $file);
+    return $mime;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Helper function to Encrypt.
+ */
+function encrypt_firmware_file($sourcebasepath, $filename, $ext) {
+  global $encrypt_key;
+  $size = 1048576;
+  $source_file = $sourcebasepath . $filename . $ext;
+  $encrypt_file = $sourcebasepath . $filename . '_encrypt' . $ext;
+  $fp = fopen($source_file, 'r');
+  $fpw = fopen($encrypt_file, 'w');
+  $key = $encrypt_key;
+  $alg = MCRYPT_RIJNDAEL_128;
+  $mode = MCRYPT_MODE_CFB;
+  $iv = "123^&6781#@$456%";
+  // read some data
+  while (!feof($fp)) {
+    $contents = fread($fp, $size);
+    $data = mcrypt_encrypt($alg, md5($key), $contents, $mode, $iv);
+    fwrite($fpw, $data);
+  }
+  fclose($fp);
+  fclose($fpw);
+  unlink($source_file);
+  rename($encrypt_file, $source_file);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
