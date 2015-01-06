@@ -29,6 +29,12 @@ function loan_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
   );
+  $items ['loan/edit/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('loan_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
 
   return $items;
 }
@@ -39,14 +45,18 @@ function loan_menu() {
  */
 function loan_theme() {
   return array(
+    'loan_form' => array(
+      'template' => 'template/loan_form',
+      'arguments' => array('form' => NULL),
+  ),
     'loan_list' => array(
       'template' => 'template/loan_list',
       'arguments' => array('form' => NULL),
-    ),
+  ),
     'loan_view' => array(
       'template' => 'template/loan_view',
       'arguments' => array('form' => NULL),
-    ),
+  ),
   );
 }
 
@@ -73,7 +83,7 @@ function loan_view(){
 }
 
 
-function loan_form() {
+function loan_form($id) {
   $form['loan_id'] = array(
     '#type' => 'hidden',
     '#value' => $id,
@@ -174,6 +184,44 @@ function loan_form() {
 
 
 /**
+ * Validate the form.
+ */
+function loan_form_validate($form, &$form_state) {
+  if ($form_state['values']['user_name'] == 'King Kong') {
+    // We notify the form API that this field has failed validation.
+    form_set_error('user_name',
+    t('King Kong is not allowed to use this form.'));
+  }
+}
+/**
+ * Handle post-validation form submission.
+ */
+function loan_form_submit($form, &$form_state) {
+  $name = $form_state['values']['user_name'];
+  drupal_set_message(t('Thanks for filling out the form, %name', array('%name' => $name)));
+}
+
+
+
+
+/**
+ * Enter description here...
+ *
+ * @param unknown_type $vars
+ */
+function template_preprocess_loan_form(&$vars) {
+  $loan_id = arg(2);
+  //add covidien_firmware_form
+  $loan_form = loan_form($loan_id);
+  //if edit
+  $vars['loan_form'] = $loan_form;
+  
+  
+  
+}
+
+
+/**
  * Enter description here...
  *
  * @param unknown_type $vars
@@ -182,14 +230,15 @@ function template_preprocess_loan_list(&$vars) {
   $html = '';
   //header
   $header = array(
-    array('data' => t('借贷平台'), 'field' => 'loan_platform'),
-    array('data' => t('合同编号'), 'field' => 'contract_number'),
-    array('data' => t('项目名称'), 'field' => 'item_name'),
-    array('data' => t('借款金额'), 'field' => 'principal'),
-    array('data' => t('借款时间'), 'field' => 'loan_time', 'sort' => 'desc'),
-    array('data' => t('年化收益'), 'field' => 'annualized_return'),
-    array('data' => t('到期时间'), 'field' => 'expiration_time'),
-    array('data' => t('回款方式'), 'field' => 'payment_mode'),
+  array('data' => t('借贷平台'), 'field' => 'loan_platform'),
+  array('data' => t('合同编号'), 'field' => 'contract_number'),
+  array('data' => t('项目名称'), 'field' => 'item_name'),
+  array('data' => t('借款金额'), 'field' => 'principal'),
+  array('data' => t('借款时间'), 'field' => 'loan_time', 'sort' => 'desc'),
+  array('data' => t('年化收益'), 'field' => 'annualized_return'),
+  array('data' => t('到期时间'), 'field' => 'expiration_time'),
+  array('data' => t('回款方式'), 'field' => 'payment_mode'),
+  array('data' => t('操作')),
   );
 
   $query = pager_query("SELECT * FROM loan" . tablesort_sql($header), $limit = 30);
@@ -205,8 +254,12 @@ function template_preprocess_loan_list(&$vars) {
     $row['loan_time'] ? date('Y-m-d', $row['loan_time']): '',
     $row['annualized_return'],
     $row['expiration_time'] ? date('Y-m-d', $row['expiration_time']): '',
-    $row['payment_mode']
-    );
+    $row['payment_mode'],
+      '<a href="'.url('loan/view/'.$row['loan_id']) .'">查看</a> 
+       <a href="'.url('loan/edit/'.$row['loan_id']) .'">编辑</a>
+       <a href="'.url('loan/delete/'.$row['loan_id']) .'">删除</a>
+      '
+      );
   }
 
   $html .= theme('table', $header, $rows);
@@ -241,13 +294,13 @@ function template_preprocess_loan_view(&$vars) {
       'expiration_time' => $row->expiration_time,
     );
   }
-  
+
   $vars['loan'] = $loan;
 }
 
 
 /**
- *  add load 
+ *  add load
  * @return unknown_type
  */
 function loan_save() {
@@ -272,10 +325,10 @@ function loan_save() {
       loan_time,  expiration_time, payment_mode
     )	VALUES ('%s', '%s', '%s', %f, '%s', %f, %d, %d, '%s')";
 
-  $flag = db_query($insert_loan_sql, 
-      $loan_platform , $contract_number, $item_name, 
-      $principal, $period, $annualized_return, 
-      $loan_time, $expiration_time, $payment_mode);
+  $flag = db_query($insert_loan_sql,
+  $loan_platform , $contract_number, $item_name,
+  $principal, $period, $annualized_return,
+  $loan_time, $expiration_time, $payment_mode);
 
   if($flag){
     $message = t('loan @name has been created. ', array('@name' => $item_name));
