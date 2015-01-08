@@ -1,8 +1,0 @@
-name = Greeny_blu
-description = Theme for Greeny_blu.
-version = 1.x
-core = 6.x
-engine = phptemplate
-
-stylesheets[all][] = css/style.css
-scripts[] = js/common.js
