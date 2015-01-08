@@ -91,6 +91,13 @@
 
 $db_url = 'mysqli://covidiendbuser:C0vidi3nDrp@localhost/financing';
 
+# haphost mirror.wicp.net
+//$db_url = 'mysql://x66bd82d9x_site:wtKNZb3RFN@localhost/x66bd82d9x_site';
+
+# haphost www.idea.iego.net 
+//$db_url = 'mysql://x66bd82d9x_store:e7hgqwubm8@localhost/x66bd82d9x_store';
+
+
 $db_prefix = '';
 
 /**
