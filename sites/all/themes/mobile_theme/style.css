@@ -1,0 +1,64 @@
+@charset "utf-8";
+/* CSS Document */
+body{
+	padding:0; 
+	margin:0; 
+  background: #FFFFFF;
+  color: #494949;
+	font-family:'宋体',Verdana, Geneva, sans-serif;
+  font-size:80%; 
+}
+
+ul,li,form,h1,h2,h3,h4,h5,h6,p{padding:0; margin:0; list-style-type:none;}
+i,cite{font-style:normal;}
+
+a {
+	color: #00000;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+
+.divcss5_title{font-size:1.6em; text-align:center; margin:20px 0;}
+.divcss5_main_con{padding:0 20px 20px; margin:0 auto; text-align:center; width:480px}
+
+
+
+table {
+  margin: 1em 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+	background-color: #C7EAFB;
+  border: 1px solid #D1D3D4;
+  color: #494949;
+  font-weight: bold;
+}
+
+
+table td{
+  border: 1px solid #D1D3D4;
+}
+
+tr.even, tr.odd, tbody th {
+  border-width: 1px 0;
+}
+
+tr.odd, tr.info {
+  background-color: #edf5fa;
+}
+
+tr.even {
+  background-color: #fff;
+}
+
+tr.odd td.active {
+  background-color: #edf5fa;
+}
+
+tr.even td.active {
+  background-color: #fff;
+}
+
