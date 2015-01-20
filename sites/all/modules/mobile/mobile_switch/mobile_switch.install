@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Mobile Switch module.
+ */
+
+/**
+ * Implementation of of hook_uninstall().
+ */
+function mobile_switch_uninstall() {
+  $query = db_query("SELECT * FROM {variable} WHERE name LIKE '%mobile_switch_%'");
+
+  while ($result = db_fetch_object($query)) {
+    variable_del($result->name);
+  }
+}

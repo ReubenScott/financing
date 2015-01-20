@@ -1,0 +1,12 @@
+name = Mobile Switch
+description = Simple theme switch for mobile devices, detected by browscap.
+package = User interface
+core = 6.x
+dependencies[] = browscap
+
+; Information added by drupal.org packaging script on 2013-10-01
+version = "6.x-1.0-beta1+1-dev"
+core = "6.x"
+project = "mobile_switch"
+datestamp = "1380587441"
+
