@@ -1,5 +1,0 @@
-; $Id$
-name = investment
-description = "investment"
-core = 6.x
-package = Investment
