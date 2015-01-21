@@ -1,5 +1,0 @@
-; $Id$
-name = hello_drupal
-description = "hello_drupal"
-package = Pro Drupal Development
-core = 6.x
