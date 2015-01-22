@@ -18,6 +18,11 @@ a {
 	font-weight: bold;
 }
 
+img{ 
+  max-width:100%;
+  height:auto;
+  border: none; 
+} 
 
 .divcss5_title{font-size:1.6em; text-align:center; margin:20px 0;}
 .divcss5_main_con{padding:0 20px 20px; margin:0 auto; text-align:center; width:480px}
