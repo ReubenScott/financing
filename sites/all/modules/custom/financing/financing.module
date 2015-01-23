@@ -1,0 +1,92 @@
+<?php
+
+/**
+* Implementation of hook_perm().
+*/
+function financing_perm() {
+   return array('view','add','edit', 'delete');
+}
+
+
+/**
+ * Implement hook_menu
+ */
+function financing_menu() {
+  $items = array();
+
+  $items['financing'] = array(
+    'title' => 'financing',
+    'page callback' => 'financing_list',
+    'access arguments' => array('view'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items ['financing/add'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('financing_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('add'),
+    'type' => MENU_CALLBACK
+  );
+  $items ['financing/persist'] = array(
+    'page callback' => 'financing_persist',
+    'access arguments' => array('add'),
+//    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items ['financing/view/%'] = array(
+    'page callback' => 'financing_view',
+    'access arguments' => array('view'),
+//    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items ['financing/edit/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('financing_form'),
+    'access arguments' => array('edit'),
+//    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+
+
+
+
+/**
+ * Implements hook_theme()
+ */
+function financing_theme() {
+  return array(
+    'financing_form' => array(
+      'template' => 'template/financing_form',
+      'arguments' => array('form' => NULL),
+  ),
+    'financing_list' => array(
+      'template' => 'template/financing_list',
+      'arguments' => array('form' => NULL),
+  ),
+    'financing_view' => array(
+      'template' => 'template/financing_view',
+      'arguments' => array('form' => NULL),
+  ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ *
+ */
+function financing_init() {
+  require_once 'sites/all/includes/security.inc';
+
+
+}
+
+
+
+
+
+
+

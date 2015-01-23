@@ -1,0 +1,96 @@
+<?php
+
+// $Id$
+
+
+/**
+ * Implementation of hook_install().
+ */
+function financing_install() {
+  drupal_install_schema('financing');
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function financing_uninstall() {
+  drupal_uninstall_schema('financing');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function financing_schema() {
+  
+  $schema['financing_patron'] = array(
+    'description' => t("赞助人"),
+    'fields' => array(
+      'id' => array(
+       'type' => 'serial',
+       'unsigned' => TRUE,
+       'not null' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('贷款人姓名'),
+      ),
+      'guarantee_institution' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('担保机构'),
+      ),
+      'principal' => array(
+        'type' => 'float',
+        'size' => 'normal',
+        'description' => t('收益'),
+      ),
+      'expiration_time' => array(
+         'type' => 'float',
+         'size' => 'normal',
+         'not null' => FALSE,
+         'description' => t('待收总额'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  
+  $schema['financing_records'] = array(
+    'description' => t("贷款记录"),
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'patron_id' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('贷款人ID'),
+      ),
+      'principal' => array(
+        'type' => 'float',
+        'size' => 'normal',
+        'description' => t('贷款金额'),
+      ),
+      'financing_time' => array(
+         'type' => 'int',
+         'size' => 'normal',
+         'not null' => FALSE,
+         'description' => t('贷款时间'),
+      ),
+      'annualized_return' => array(
+        'type' => 'float',
+        'size' => 'normal',
+        'not null' => true,
+        'default' => '0.06',
+        'description' => t('年化收益率'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
