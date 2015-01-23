@@ -1,0 +1,261 @@
+<?php
+
+function stock_menu() {
+
+  $items = array();
+  
+  $items['stock'] = array(
+    'title' => 'stock',
+    'page callback' => 'stock_market',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['stock/list'] = array(
+    'title' => 'stock',
+    'page callback' => 'stock_list',
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items ['stock/add'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('stock_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  $items ['stock/save'] = array(
+    'page callback' => 'stock_save',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_theme()
+ */
+function stock_theme() {
+  return array(
+    'stock_market' => array(
+      'template' => 'stock_market',
+      'arguments' => array('form' => NULL),
+    ),
+    'stock_list' => array(
+      'template' => 'stock_list',
+      'arguments' => array('form' => NULL),
+    ),
+    'stock_form' => array(
+      'template' => 'stock_form',
+      'arguments' => array('form' => NULL),
+    ),
+  );
+}
+
+
+function stock_market(){
+  drupal_set_title(t('Stock Market'));
+  $output = theme('stock_market');
+  return $output;
+}
+
+function stock_list() {
+  drupal_set_title(t('System Administration'));
+  $output = theme('stock_list');
+  return $output;
+}
+
+/**
+ * 股票行情
+ *
+ * @param unknown_type $vars
+ */
+function template_preprocess_stock_market(&$vars) {
+  
+//  http://image.sinajs.cn/newchart/daily/n/sh601006.gif
+  
+  $stock_id = 'sh000001';
+  $stock_id = 'sz162411';
+  
+  //TODO 检查股票代码是否正确
+  
+  // 当前行情 http://hq.sinajs.cn/list=sh601899
+  //  http://hq.sinajs.cn/list=s_sh601899
+  $sina_hq_url = "http://hq.sinajs.cn/list={$stock_id}"; 
+  
+  // 分时线图 http://image.sinajs.cn/newchart/min/n/sh000001.gif
+  $sina_min_url = "http://image.sinajs.cn/newchart/min/n/{$stock_id}.gif"; 
+  
+  // 日K线图  http://image.sinajs.cn/newchart/daily/n/sh000001.gif
+  $sina_rkx_url = "http://image.sinajs.cn/newchart/daily/n/{$stock_id}.gif";
+ 
+  $service_url = $sina_hq_url;
+
+  $curl = curl_init();
+  $header = array("content-type: application/x-www-form-urlencoded; charset=UTF-8");
+  curl_setopt($curl,CURLOPT_HTTPHEADER,$header);
+  curl_setopt($curl, CURLOPT_URL, $service_url);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+  curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+  curl_setopt($curl, CURLOPT_FOLLOWLOCATION, TRUE);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
+  curl_setopt($curl, CURLOPT_TIMEOUT, 300);
+  
+  $result = curl_exec($curl);
+  
+  $curl_errno = curl_errno($curl);
+  $curl_error = curl_error($curl);
+  
+  curl_close($curl);
+  
+  if ($curl_errno > 0) {
+    //TODO log error
+    echo "CURL Error ($curl_errno) :  $curl_error";
+  }
+  
+  //将编码$code转换为utf-8编码
+  $result= mb_convert_encoding($result,'UTF-8','GBK,UTF-8,ASCII');
+  $pos = strpos($result, '="');
+  
+  $result = substr($result, $pos+2); 
+  
+  
+  
+  $vars['min_src'] = $sina_min_url; 
+  $vars['rkx_src'] = $sina_rkx_url; 
+  $vars['result'] = explode(",",$result);
+  
+}
+
+
+
+
+function stock_preprocess_stock_list(&$vars) {
+  $html = '';
+  //header
+  $header = array(
+    array('data' => t('项目名称'), 'field' => 'item_name'),
+    array('data' => t('投资金额'), 'field' => 'principal'),
+    array('data' => t('担保机构'), 'field' => 'guarantee_institution'),
+    array('data' => t('投资时间'), 'field' => 'stock_time', 'sort' => 'desc'),
+    array('data' => t('年化收益'), 'field' => 'annualized_return'),
+    array('data' => t('到期时间'), 'field' => 'expiration_time'),
+    array('data' => t('回款方式'), 'field' => 'payment_mode'),
+  );
+
+  $query = pager_query("SELECT * FROM stock" . tablesort_sql($header), $limit = 30);
+
+  $rows= array();
+
+  while ($row = db_fetch_array($query)) {
+    $rows[] = array(
+      $row['item_name'],
+      $row['principal'],
+      $row['guarantee_institution'],
+      $row['stock_time'] ? date('Y-m-d', $row['stock_time']): '',
+      $row['annualized_return'], 
+      $row['expiration_time'] ? date('Y-m-d', $row['expiration_time']): '',
+      $row['payment_mode']
+    );
+  }
+
+  $html .= theme('table', $header, $rows);
+  $html .= theme('pager');
+
+  $vars['html'] = $html;
+
+}
+
+function stock_form() {
+  $form['stock_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $id,
+  );
+  $form['item_name'] = array(
+    '#title' => t('项目名称'),
+    '#type' => 'textfield',
+    '#id' => 'item_name',
+    '#required' => TRUE,
+    '#name' => 'item_name',
+    '#attributes' => array('placeholder' => 'Enter stock Name'),
+  );
+  $form['principal'] = array(
+    '#title' => t('投资金额'),
+    '#type' => 'textfield',
+    '#id' => 'principal',
+    '#required' => TRUE,
+    '#name' => 'principal',
+    '#attributes' => array('placeholder' => 'Enter stock Part #'),
+  );
+  $form['guarantee_institution'] = array(
+    '#title' => t('担保机构'),
+    '#type' => 'textfield',
+    '#id' => 'guarantee_institution',
+    '#required' => TRUE,
+    '#name' => 'guarantee_institution',
+    '#attributes' => array('placeholder' => 'Enter guarantee_institution'),
+  );
+  $form['stock_time'] = array(
+    '#title' => t('投资时间'),
+    '#type' => 'textfield',
+    '#id' => 'stock_time',
+    '#required' => TRUE,
+    '#name' => 'stock_time',
+    '#attributes' => array('placeholder' => 'Enter stock Description'),
+  );
+  $form['annualized_return'] = array(
+    '#title' => t('年化收益'),
+    '#type' => 'textfield',
+    '#id' => 'annualized_return',
+    '#name' => 'annualized_return',
+  );
+  //add check box no file
+  $form['expiration_time'] = array(
+    '#title' => t('到期时间'),
+    '#type' => 'textfield',
+    '#name' => 'expiration_time',
+    '#id' => 'expiration_time',
+  );
+  $form['payment_mode'] = array(
+    '#title' => t('回款方式'),
+    '#type' => 'textfield',
+    '#id' => 'payment_mode',
+    '#name' => 'payment_mode',
+  );
+
+  $form['reset'] = array ('#value' => '<input type="reset" value="Reset">');
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#action'] = $id ? url('stock/update') : url('stock/save');
+//  $form['#theme'] = array('covidien_stock_form');
+//  $form['#validate'] = array('covidien_stock_form_validate');
+//  $form['#submit'] = array('covidien_stock_form_submit');
+
+  return $form;
+}
+
+
+function stock_preprocess_stock_form(&$vars) {
+  $stock_form = stock_form();
+
+  $vars['stock_form']=  $stock_form ;
+}
+
+
+function safeEncoding($str){
+  $code=mb_detect_encoding($str,array('GBK','UTF-8','ASCII'));//检测字符串编码
+  
+  if($code=="CP936"){
+    $result=$str;
+  } else{
+//    $result=iconv($code,"UTF-8",$str);
+  }
+  $result=mb_convert_encoding($str,'UTF-8',$code); //将编码$code转换为utf-8编码
+  
+  
+  return $result;
+}

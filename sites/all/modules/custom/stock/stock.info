@@ -1,0 +1,5 @@
+; $Id$
+name = Stock
+description = "Stock"
+core = 6.x
+package = Investment
