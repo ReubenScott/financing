@@ -1,0 +1,5 @@
+; $Id$
+name = News
+description = News
+core = 6.x
+package = Investment

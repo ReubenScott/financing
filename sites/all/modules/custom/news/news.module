@@ -1,0 +1,76 @@
+<?php
+/* 
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+*/
+
+/**
+ * Implement hook_menu
+ */
+function news_menu() {
+  $items = array();
+
+
+  return $items;
+}
+
+/**
+ * Implements hook_init()
+ */
+function news_init() {
+  
+}
+
+
+/**
+ * 新闻采集
+ * Implements cron functioanlity.
+ */
+function news_cron() {
+  
+  
+   //  dblist();
+   
+}
+
+
+
+
+/**
+ * Implements hook_xmlrpc().
+ *
+ * Provides Drupal with an array to map XML-RPC callbacks to the
+ * functions implemented by this module.
+ *
+ * @see hook_xmlrpc()
+ */
+function news_xmlrpc() {
+  
+  $methods[] = array(
+    'news.finance_news', // Method name
+    '_rpc_finance_news', // Callback to execute
+    array(// Array of types for output/input parameteres
+      'string', // the type of the return value
+      'string', // the type of the first argument
+    ),
+    t('News') // Method description
+  );
+  
+  return $methods;
+}
+
+
+
+function _rpc_finance_news($new_type) {
+  $new_type = filter_xss($new_type);
+  
+  $news = array( 
+    'Title' => '存款准备金率较低对股市的影响', 
+    'Description' => '存款准备金率较低对股市的影响', 
+    'PicUrl' => 'http://image.sinajs.cn/newchart/min/n/sh000001.gif',
+    'Url' => 'http://blog.sina.com.cn/s/blog_4d8d8b010102vv3m.html'
+  ); 
+  
+  return json_encode($news);
+}
+

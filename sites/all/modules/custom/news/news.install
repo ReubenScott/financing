@@ -1,0 +1,65 @@
+<?php
+
+// $Id$
+
+
+/**
+ * Implementation of hook_install().
+ */
+function news_install() {
+  drupal_install_schema('news');
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function news_uninstall() {
+  drupal_uninstall_schema('news');
+}
+
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function news_schema() {
+  $schema['news'] = array(
+    'description' => t("news"),
+    'fields' => array(
+        'news_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'news_type' => array(
+        'type' => 'float',
+        'size' => 'normal',
+        'description' => t('新闻类型'),
+      ),
+      'news_title' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('新闻标题'),
+      ),
+      'news_roundup' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('新闻摘要'),
+      ),
+      'news_picUrl' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('图片地址'),
+      ),
+      'news_url' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'description' => t('原文地址'),
+      ),
+    ),
+    'primary key' => array('news_id'),
+  );
+  return $schema;
+}
+
